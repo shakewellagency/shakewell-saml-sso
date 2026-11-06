@@ -1,0 +1,35 @@
+{
+    "name": "shakewellagency/shakewell-saml-sso",
+    "description": "Single sign-on for WordPress with any SAML 2.0 identity provider, built on onelogin/php-saml.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        { "name": "Shakewell", "homepage": "https://shakewell.agency" }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "composer/installers": "^2.3",
+        "onelogin/php-saml": "4.3.2",
+        "robrichards/xmlseclibs": "3.1.5"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "php-stubs/wordpress-stubs": "^6.8",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "phpunit/phpunit": "^9.6",
+        "wp-coding-standards/wpcs": "^3.1",
+        "yoast/phpunit-polyfills": "^4.0"
+    },
+    "scripts": {
+        "lint": "phpcs",
+        "fix": "phpcbf"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "platform": { "php": "8.1" },
+        "sort-packages": true
+    }
+}

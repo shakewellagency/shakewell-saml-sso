@@ -1,0 +1,50 @@
+name: Release
+
+# Push a tag like v1.2.3 to build the installable zip and attach it to a GitHub release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the tag matches the plugin version
+        run: |
+          slug="${GITHUB_REPOSITORY#*/}"
+          tag="${GITHUB_REF_NAME#v}"
+          header=$(grep -m1 -E '^\s*\*\s*Version:' "$slug.php" | awk '{print $NF}')
+          stable=$(grep -m1 -E '^Stable tag:' readme.txt | awk '{print $NF}')
+          test "$tag" = "$header" && test "$tag" = "$stable" || { echo "tag $tag, header $header, readme $stable"; exit 1; }
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+      - name: Build the zip (production vendor folder included, .distignore decides what is left out)
+        run: |
+          slug="${GITHUB_REPOSITORY#*/}"
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+          mkdir -p "build/$slug"
+          rsync -a --exclude-from=.distignore --exclude=.git --exclude=build ./ "build/$slug/"
+          (cd build && zip -qr "../$slug.zip" "$slug")
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: '*.zip'
+          generate_release_notes: true
+
+  # Publishing to WordPress.org happens only once the plugin is listed there.
+  # Set the repository variable WPORG_LISTED to "true" and the secrets SVN_USERNAME / SVN_PASSWORD.
+  wordpress-org:
+    needs: release
+    if: vars.WPORG_LISTED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: 10up/action-wordpress-plugin-deploy@2.3.0
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
