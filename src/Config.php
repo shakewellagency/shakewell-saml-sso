@@ -14,7 +14,6 @@ defined( 'ABSPATH' ) || exit;
  * Nothing is read from or stored in the database.
  *
  * Every setting is looked up as the constant, then the environment variable, named SHAKEWELL_SAML_SSO_<KEY>.
- * The older SAML_* name (second column of NAMES) is accepted as a fallback, so a site that already uses it needs no renaming.
  */
 final class Config {
 
@@ -29,33 +28,33 @@ final class Config {
 
 	public const PREFIX = 'SHAKEWELL_SAML_SSO_';
 
-	/** Key => older name. */
-	private const NAMES = array(
-		'ENABLED'         => 'SAML_SSO_ENABLED',
-		'IDP_ENTITY_ID'   => 'SAML_IDP_ENTITY_ID',
-		'IDP_SSO_URL'     => 'SAML_IDP_SSO_URL',
-		'IDP_SLO_URL'     => 'SAML_IDP_SLO_URL',
-		'IDP_CERTS'       => 'SAML_IDP_CERTS',
-		'SIGNED_ELEMENT'  => null,
-		'SP_BASE_URL'     => 'SAML_SP_BASE_URL',
-		'SP_ENTITY_ID'    => 'SAML_SP_ENTITY_ID',
-		'ACS_URL'         => 'SAML_ACS_URL',
-		'SP_CERT'         => 'SAML_SP_CERT',
-		'SP_KEY'          => 'SAML_SP_KEY',
-		'WANT_ENCRYPTED'  => 'SAML_WANT_ENCRYPTED',
-		'EMAIL_ATTR'      => null,
-		'FIRST_NAME_ATTR' => null,
-		'LAST_NAME_ATTR'  => null,
-		'ID_ATTR'         => null,
-		'GROUP_CLAIM'     => 'SAML_GROUP_CLAIM',
-		'ROLE_MAP'        => 'SAML_ROLE_MAP',
-		'DEFAULT_ROLE'    => 'SAML_DEFAULT_ROLE',
-		'AUTO_CREATE'     => 'SAML_AUTO_CREATE',
-		'ALLOWED_DOMAINS' => null,
+	/** Setting keys, each read as SHAKEWELL_SAML_SSO_<KEY>. */
+	private const KEYS = array(
+		'ENABLED',
+		'IDP_ENTITY_ID',
+		'IDP_SSO_URL',
+		'IDP_SLO_URL',
+		'IDP_CERTS',
+		'SIGNED_ELEMENT',
+		'SP_BASE_URL',
+		'SP_ENTITY_ID',
+		'ACS_URL',
+		'SP_CERT',
+		'SP_KEY',
+		'WANT_ENCRYPTED',
+		'EMAIL_ATTR',
+		'FIRST_NAME_ATTR',
+		'LAST_NAME_ATTR',
+		'ID_ATTR',
+		'GROUP_CLAIM',
+		'ROLE_MAP',
+		'DEFAULT_ROLE',
+		'AUTO_CREATE',
+		'ALLOWED_DOMAINS',
 	);
 
 	/**
-	 * Settings by key (see NAMES). Values are strings, booleans or arrays, as the constant or variable gave them.
+	 * Settings by key (see KEYS). Values are strings, booleans or arrays, as the constant or variable gave them.
 	 *
 	 * @param array<string,mixed> $env       Settings.
 	 * @param string              $home_url  The site's home URL.
@@ -72,19 +71,17 @@ final class Config {
 	 */
 	public static function from_environment( string $home_url, string $login_url ): self {
 		$env = array();
-		foreach ( self::NAMES as $key => $older ) {
-			foreach ( array_filter( array( self::PREFIX . $key, $older ) ) as $name ) {
-				if ( defined( $name ) ) {
-					$value = constant( $name );
-					$found = true;
-				} else {
-					$value = getenv( $name );
-					$found = false !== $value;
-				}
-				if ( $found && null !== $value && '' !== $value && array() !== $value ) {
-					$env[ $key ] = $value;
-					break;
-				}
+		foreach ( self::KEYS as $key ) {
+			$name = self::PREFIX . $key;
+			if ( defined( $name ) ) {
+				$value = constant( $name );
+				$found = true;
+			} else {
+				$value = getenv( $name );
+				$found = false !== $value;
+			}
+			if ( $found && null !== $value && '' !== $value && array() !== $value ) {
+				$env[ $key ] = $value;
 			}
 		}
 		return new self( $env, $home_url, $login_url );

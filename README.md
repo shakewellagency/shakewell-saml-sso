@@ -23,7 +23,7 @@ Tests sign SAML responses with a throwaway key made at run time. No key is commi
 1. Bump the version in the plugin header, `readme.txt` (`Stable tag`) and the `VERSION` constant, and add a changelog line.
 2. Tag `vX.Y.Z` and push. The release workflow checks the three versions match, runs `composer install --no-dev` and attaches `shakewell-saml-sso.zip`, which includes the production `vendor/` folder, to a GitHub release.
 
-## Install on a Bedrock site
+## Install with Composer
 
 ```json
 "repositories": [

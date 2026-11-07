@@ -1,10 +1,10 @@
 === Shakewell Single Sign-On (SAML) ===
-Contributors: shakewell
+Contributors: shakewellagency
 Tags: saml, sso, single sign-on, login, microsoft entra
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,10 @@ This plugin talks to one outside service: the SAML 2.0 identity provider you con
 * When: only when someone chooses the sign-in button, or logs out of a session that began with single sign-on.
 * Terms and privacy policy: those of the identity provider you choose. For Microsoft Entra ID: [Microsoft Services Agreement](https://www.microsoft.com/servicesagreement) and [Privacy Statement](https://privacy.microsoft.com/privacystatement).
 
+= Bundled libraries =
+
+The release zip includes two libraries in its `vendor` folder, both under licences compatible with the GPL: [onelogin/php-saml](https://github.com/SAML-Toolkits/php-saml) 4.3.2 (MIT) and [robrichards/xmlseclibs](https://github.com/robrichards/xmlseclibs) 3.1.5 (BSD 3-Clause). Their source is plain PHP, unmodified. They need the PHP extensions openssl, dom and xml, which most hosts enable.
+
 == Installation ==
 
 1. Install the plugin (upload the release zip, which includes the library, or require it with Composer) and activate it.
@@ -51,25 +55,25 @@ This plugin talks to one outside service: the SAML 2.0 identity provider you con
 
 = Settings =
 
-Each setting is a PHP constant (or an environment variable) named `SHAKEWELL_SAML_SSO_<NAME>`. The older name in the last column is also accepted, so a site already using it needs no renaming. A constant wins over an environment variable; the new name wins over the older one.
+Each setting is a PHP constant (or an environment variable) named `SHAKEWELL_SAML_SSO_<NAME>`. A constant wins over an environment variable.
 
-* `ENABLED`: `true` to switch on. Default off. Older name `SAML_SSO_ENABLED`.
-* `IDP_ENTITY_ID` (required): the identity provider's entity id. Entra: "Microsoft Entra Identifier". Older `SAML_IDP_ENTITY_ID`.
-* `IDP_SSO_URL` (required): the identity provider's sign-in URL. Entra: "Login URL". Older `SAML_IDP_SSO_URL`.
-* `IDP_CERTS` (required): the identity provider's signing certificate. PEM text, or base64 only, several separated by commas, or a PHP array. List the old and new certificate together during a rollover. Older `SAML_IDP_CERTS`.
-* `IDP_SLO_URL`: the identity provider's sign-out URL. Without it, logging out only ends the WordPress session. Older `SAML_IDP_SLO_URL`.
+* `ENABLED`: `true` to switch on. Default off..
+* `IDP_ENTITY_ID` (required): the identity provider's entity id. Entra: "Microsoft Entra Identifier"..
+* `IDP_SSO_URL` (required): the identity provider's sign-in URL. Entra: "Login URL"..
+* `IDP_CERTS` (required): the identity provider's signing certificate. PEM text, or base64 only, several separated by commas, or a PHP array. List the old and new certificate together during a rollover..
+* `IDP_SLO_URL`: the identity provider's sign-out URL. Without it, logging out only ends the WordPress session..
 * `SIGNED_ELEMENT`: `assertion` (default) if the identity provider signs the assertion, or `response` if it signs only the response envelope. One of the two must be signed. Entra's default signs the assertion; choose "Sign SAML response and assertion" or set `response` to match what you configured.
-* `SP_BASE_URL`: the address the identity provider is registered against. Default: the site's home URL. Older `SAML_SP_BASE_URL`.
-* `SP_ENTITY_ID`: this site's identifier at the identity provider. Default: the base URL. Older `SAML_SP_ENTITY_ID`.
-* `ACS_URL`: where the identity provider posts the response. Default: the site root (`https://example.com/`). Older `SAML_ACS_URL`.
+* `SP_BASE_URL`: the address the identity provider is registered against. Default: the site's home URL..
+* `SP_ENTITY_ID`: this site's identifier at the identity provider. Default: the base URL..
+* `ACS_URL`: where the identity provider posts the response. Default: the site root (`https://example.com/`)..
 * `EMAIL_ATTR`, `FIRST_NAME_ATTR`, `LAST_NAME_ATTR`: attribute names. Defaults are the Microsoft claim URIs for email address, given name and surname.
 * `ID_ATTR`: attribute holding a stable user id, stored on first sign-in and then required to match. Default is Entra's object id claim.
-* `GROUP_CLAIM`: attribute holding group ids. Default is Entra's groups claim. Older `SAML_GROUP_CLAIM`.
-* `AUTO_CREATE`: `true` to create users who do not exist yet. Default `false`. Older `SAML_AUTO_CREATE`.
-* `DEFAULT_ROLE`: role for a new user with no mapped group. Default `subscriber`. Older `SAML_DEFAULT_ROLE`.
-* `ROLE_MAP`: group id to role, as JSON (`{"group-id":"editor"}`) or a PHP array. Used only when a user is created. The first match wins. Older `SAML_ROLE_MAP`.
+* `GROUP_CLAIM`: attribute holding group ids. Default is Entra's groups claim..
+* `AUTO_CREATE`: `true` to create users who do not exist yet. Default `false`..
+* `DEFAULT_ROLE`: role for a new user with no mapped group. Default `subscriber`..
+* `ROLE_MAP`: group id to role, as JSON (`{"group-id":"editor"}`) or a PHP array. Used only when a user is created. The first match wins..
 * `ALLOWED_DOMAINS`: comma-separated list or array of email domains allowed to sign in, for example `example.com,example.org`. Empty means any. When set, a response without an email address is refused.
-* `SP_CERT`, `SP_KEY`, `WANT_ENCRYPTED`: only if you want the plugin to decrypt assertions. Not needed for signed, unencrypted responses. Older `SAML_SP_CERT`, `SAML_SP_KEY`, `SAML_WANT_ENCRYPTED`.
+* `SP_CERT`, `SP_KEY`, `WANT_ENCRYPTED`: only if you want the plugin to decrypt assertions. Not needed for signed, unencrypted responses..
 
 Example for `wp-config.php`:
 
@@ -83,7 +87,7 @@ Example for `wp-config.php`:
 = Microsoft Entra ID setup =
 
 1. In Entra admin center, Enterprise applications, New application, Create your own application, "Integrate any other application you don't find in the gallery". Set Single sign-on to SAML.
-2. Basic SAML Configuration: Identifier (Entity ID) is the value of `SP_ENTITY_ID` (by default your site address, for example `https://example.com`). Reply URL (Assertion Consumer Service URL) is the value of `ACS_URL` (by default `https://example.com/`). You can also upload the metadata file from this site: `https://example.com/wp-login.php?action=shakewell_saml_sso_metadata` (use your own login address; on Bedrock it is `/wp/wp-login.php`).
+2. Basic SAML Configuration: Identifier (Entity ID) is the value of `SP_ENTITY_ID` (by default your site address, for example `https://example.com`). Reply URL (Assertion Consumer Service URL) is the value of `ACS_URL` (by default `https://example.com/`). You can also upload the metadata file from this site: `https://example.com/wp-login.php?action=shakewell_saml_sso_metadata` (use your own login address; if WordPress lives in a subfolder, include it).
 3. Attributes and Claims: keep the default claims (email address, given name, surname, user principal name). Add the object identifier claim if it is missing. To use groups, add a groups claim sent as group ids.
 4. SAML Certificates: keep "Sign SAML assertion" (or choose "Sign SAML response and assertion"). Leave encryption off. Download "Certificate (Base64)" and put its text in `IDP_CERTS`.
 5. Copy "Login URL", "Microsoft Entra Identifier" and optionally "Logout URL" from the "Set up" section into `IDP_SSO_URL`, `IDP_ENTITY_ID` and `IDP_SLO_URL`.
@@ -142,6 +146,9 @@ Use the `shakewell_saml_sso_button_label` filter.
 Please do not open a public issue. Follow SECURITY.md in the plugin's repository.
 
 == Changelog ==
+
+= 0.1.1 =
+* Site-neutral release: only the `SHAKEWELL_SAML_SSO_` setting names are read, the documentation no longer assumes a particular hosting layout, and the readme lists the bundled libraries and their licences.
 
 = 0.1.0 =
 * First release.
