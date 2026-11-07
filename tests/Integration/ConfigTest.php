@@ -87,6 +87,12 @@ final class ConfigTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'prefixed.example', Config::from_environment( self::HOME, self::LOGIN )->settings()['idp']['singleSignOnService']['url'] );
 	}
 
+	/**
+	 * Constants cannot be undefined, so this runs in its own process to keep them from leaking into other tests.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
 	public function test_constants_are_read_and_win_over_the_environment(): void {
 		putenv( 'SHAKEWELL_SAML_SSO_GROUP_CLAIM=from-env' );
 		define( 'SHAKEWELL_SAML_SSO_GROUP_CLAIM', 'from-constant' );

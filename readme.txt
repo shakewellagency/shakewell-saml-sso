@@ -148,7 +148,13 @@ Please do not open a public issue. Follow SECURITY.md in the plugin's repository
 == Changelog ==
 
 = 0.1.1 =
-* Site-neutral release: only the `SHAKEWELL_SAML_SSO_` setting names are read, the documentation no longer assumes a particular hosting layout, and the readme lists the bundled libraries and their licences.
+* Breaking: the older `SAML_*` setting names (for example `SAML_SSO_ENABLED`, `SAML_IDP_CERTS`) are no longer read. Rename them to `SHAKEWELL_SAML_SSO_<NAME>` (`SAML_SSO_ENABLED` becomes `SHAKEWELL_SAML_SSO_ENABLED`, `SAML_IDP_CERTS` becomes `SHAKEWELL_SAML_SSO_IDP_CERTS`, and so on) before upgrading, or single sign-on will switch off.
+* The documentation no longer assumes a particular hosting layout, and the readme lists the bundled libraries and their licences.
 
 = 0.1.0 =
 * First release.
+
+== Upgrade Notice ==
+
+= 0.1.1 =
+Breaking: settings are now read only as SHAKEWELL_SAML_SSO_<NAME>. Rename any older SAML_* constants or environment variables before upgrading, or single sign-on switches off.
