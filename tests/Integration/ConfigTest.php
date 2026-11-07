@@ -12,7 +12,7 @@ use Shakewell\SamlSso\Plugin;
 use WP_UnitTestCase;
 
 /**
- * Parsing, defaults, the older SAML_* names and the library settings.
+ * Parsing, defaults, the setting names and the library settings.
  */
 final class ConfigTest extends WP_UnitTestCase {
 
@@ -20,7 +20,7 @@ final class ConfigTest extends WP_UnitTestCase {
 	private const LOGIN = 'https://sso.example.test/wp/wp-login.php';
 
 	public function tear_down(): void {
-		foreach ( array( 'SHAKEWELL_SAML_SSO_IDP_SSO_URL', 'SAML_IDP_SSO_URL', 'SAML_AUTO_CREATE', 'SAML_GROUP_CLAIM' ) as $name ) {
+		foreach ( array( 'SHAKEWELL_SAML_SSO_IDP_SSO_URL', 'SAML_IDP_SSO_URL', 'SHAKEWELL_SAML_SSO_AUTO_CREATE', 'SHAKEWELL_SAML_SSO_GROUP_CLAIM' ) as $name ) {
 			putenv( $name );
 		}
 		parent::tear_down();
@@ -80,18 +80,24 @@ final class ConfigTest extends WP_UnitTestCase {
 		$this->assertFalse( $r['security']['wantAssertionsSigned'] );
 	}
 
-	public function test_new_names_win_over_the_older_ones_and_both_read_the_environment(): void {
-		putenv( 'SAML_IDP_SSO_URL=https://older.example/' );
-		$this->assertStringContainsString( 'older.example', Config::from_environment( self::HOME, self::LOGIN )->settings()['idp']['singleSignOnService']['url'] );
-		putenv( 'SHAKEWELL_SAML_SSO_IDP_SSO_URL=https://newer.example/' );
-		$this->assertStringContainsString( 'newer.example', Config::from_environment( self::HOME, self::LOGIN )->settings()['idp']['singleSignOnService']['url'] );
+	public function test_prefixed_names_are_read_from_the_environment_and_unprefixed_ones_are_ignored(): void {
+		putenv( 'SAML_IDP_SSO_URL=https://unprefixed.example/' );
+		$this->assertStringNotContainsString( 'unprefixed.example', Config::from_environment( self::HOME, self::LOGIN )->settings()['idp']['singleSignOnService']['url'] );
+		putenv( 'SHAKEWELL_SAML_SSO_IDP_SSO_URL=https://prefixed.example/' );
+		$this->assertStringContainsString( 'prefixed.example', Config::from_environment( self::HOME, self::LOGIN )->settings()['idp']['singleSignOnService']['url'] );
 	}
 
+	/**
+	 * Constants cannot be undefined, so this runs in its own process to keep them from leaking into other tests.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
 	public function test_constants_are_read_and_win_over_the_environment(): void {
-		putenv( 'SAML_GROUP_CLAIM=from-env' );
+		putenv( 'SHAKEWELL_SAML_SSO_GROUP_CLAIM=from-env' );
 		define( 'SHAKEWELL_SAML_SSO_GROUP_CLAIM', 'from-constant' );
-		define( 'SAML_AUTO_CREATE', false );
-		putenv( 'SAML_AUTO_CREATE=true' );
+		define( 'SHAKEWELL_SAML_SSO_AUTO_CREATE', false );
+		putenv( 'SHAKEWELL_SAML_SSO_AUTO_CREATE=true' );
 		$c = Config::from_environment( self::HOME, self::LOGIN );
 		$this->assertSame( 'from-constant', $c->group_claim() );
 		$this->assertFalse( $c->auto_create(), 'a constant set to false is honoured, not skipped' );

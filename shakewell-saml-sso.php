@@ -3,7 +3,7 @@
  * Plugin Name:       Shakewell Single Sign-On (SAML)
  * Plugin URI:        https://github.com/shakewellagency/shakewell-saml-sso
  * Description:       Sign in to wp-admin with Microsoft Entra ID or any SAML 2.0 identity provider. Off until configured.
- * Version:           0.1.0
+ * Version:           0.1.1
  * Requires at least: 6.5
  * Requires PHP:      8.1
  * Author:            Shakewell
@@ -19,10 +19,10 @@ namespace Shakewell\SamlSso;
 
 defined( 'ABSPATH' ) || exit;
 
-const VERSION = '0.1.0';
+const VERSION = '0.1.1';
 const FILE    = __FILE__;
 
-// Composer-managed sites (Bedrock) autoload the library from the root vendor folder; the release zip carries its own.
+// Composer-managed sites autoload the library from the root vendor folder; the release zip carries its own.
 if ( ! class_exists( \OneLogin\Saml2\Auth::class ) && is_file( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
 }

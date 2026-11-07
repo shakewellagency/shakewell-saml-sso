@@ -54,6 +54,6 @@ final class RedirectTest extends WP_UnitTestCase {
 	public function test_this_site_is_allowed(): void {
 		$hosts = array( 'sso.example.test' );
 		$this->assertSame( 'https://sso.example.test/wp/wp-admin/post.php?post=1', Redirect::safe( '/wp/wp-admin/post.php?post=1', $hosts, 'https://sso.example.test', self::FALLBACK ) );
-		$this->assertSame( 'https://sso.example.test/venues/', Redirect::safe( 'https://sso.example.test/venues/', $hosts, 'https://sso.example.test', self::FALLBACK ) );
+		$this->assertSame( 'https://sso.example.test/account/', Redirect::safe( 'https://sso.example.test/account/', $hosts, 'https://sso.example.test', self::FALLBACK ) );
 	}
 }
